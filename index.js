@@ -32,7 +32,8 @@ const myschema=new mongoose.Schema({
     
 });
 
-const usermodel=mongoose.model("Medicines",myschema,"Medicines")
+const usermodel=mongoose.model("mydata",myschema,"mydata")
+
 
 
 app.get('/api/search', async (req, res) => {
@@ -42,9 +43,12 @@ app.get('/api/search', async (req, res) => {
     if (result) {
       res.json(result);
     } else {
+      
       res.status(404).send('Medicine not found');
     }
   } catch (err) {
     res.status(500).send(err.message);
   }
 });
+
+

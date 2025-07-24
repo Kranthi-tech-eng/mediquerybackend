@@ -29,6 +29,7 @@ const myschema=new mongoose.Schema({
     name: String,
     uses: String,
     time: String,
+    symptoms: [String],
     
 });
 
@@ -38,17 +39,42 @@ const usermodel=mongoose.model("mydata",myschema,"mydata")
 
 app.get('/api/search', async (req, res) => {
   const query = req.query.name;
+
   try {
-    const result = await usermodel.findOne({ name: { $regex: query, $options: 'i' } });
-    if (result) {
-      res.json(result);
-    } else {
-      
-      res.status(404).send('Medicine not found');
+    // 1. Try searching by medicine name
+    const med = await usermodel.findOne({ name: { $regex: query, $options: 'i' } });
+
+    if (med) {
+      return res.json({
+        type: "medicine",
+        name: med.name,
+        uses: med.uses,
+        time: med.time,
+      });
     }
+
+    // 2. If not found by name, try searching by symptom
+    const medsBySymptom = await usermodel.find({ symptoms: { $regex: query, $options: 'i' } });
+
+    if (medsBySymptom.length > 0) {
+      return res.json({
+        type: "symptom",
+        symptom: query,
+        medicines: medsBySymptom.map(med => ({
+          name: med.name,
+          uses: med.uses,
+          time: med.time,
+        })),
+      });
+    }
+
+    // 3. If nothing found
+    res.status(404).json({ message: 'No matching medicine or symptom found' });
+
   } catch (err) {
     res.status(500).send(err.message);
   }
 });
+
 
 

@@ -54,7 +54,7 @@ app.get('/api/search', async (req, res) => {
     }
 
     // 2. If not found by name, try searching by symptom
-    const medsBySymptom = await usermodel.findOne({ symptoms: { $regex: query, $options: 'i' } });
+    const medsBySymptom = await usermodel.find({ symptoms: { $regex: query, $options: 'i' } });
 
     if (medsBySymptom.length > 0) {
       return res.json({
